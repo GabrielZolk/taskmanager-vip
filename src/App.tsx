@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import {
   AppBar,
   Toolbar,
@@ -17,6 +17,8 @@ import {
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
+import SearchIcon from '@mui/icons-material/Search';
+import ClearIcon from '@mui/icons-material/Clear';
 import './App.css';
 
 interface Task {
@@ -31,15 +33,23 @@ function App() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingTask, setEditingTask] = useState<Task | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
-
+  const [searchTerm, setSearchTerm] = useState('');
+  const [filteredTasks, setFilteredTasks] = useState<Task[]>([]);
   const editInputRef = useRef<HTMLInputElement | null>(null);
   const tasksPerPage = 5;
 
   const indexOfLastTask = currentPage * tasksPerPage;
   const indexOfFirstTask = indexOfLastTask - tasksPerPage;
-  const currentTasks = tasks.slice(indexOfFirstTask, indexOfLastTask);
+  const currentTasks = filteredTasks.slice(indexOfFirstTask, indexOfLastTask);
 
-  const totalPages = tasks.length > 0 ? Math.ceil(tasks.length / tasksPerPage) : 1;
+  const totalPages = filteredTasks.length > 0 ? Math.ceil(filteredTasks.length / tasksPerPage) : 1;
+
+  useEffect(() => {
+    const filtered = tasks.filter(task =>
+      task.content.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+    setFilteredTasks(filtered);
+  }, [tasks, searchTerm]);
 
   const handleTaskAdd = () => {
     if (taskInput) {
@@ -90,6 +100,26 @@ function App() {
       <AppBar position="static">
         <Toolbar id="toolbar">
           <Typography variant="h6">Task Manager</Typography>
+          <TextField
+            label="Search tasks..."
+            variant="outlined"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            InputProps={{
+              endAdornment: (
+                <Box display="flex" alignItems="center">
+                  <IconButton
+                    onClick={() => setSearchTerm('')}
+                    edge="end"
+                  >
+                    {searchTerm ? <ClearIcon /> : <SearchIcon />}
+                  </IconButton>
+                </Box>
+              ),
+            }}
+            style={{ margin: '0 auto' }}
+          />
+
         </Toolbar>
       </AppBar>
       <Container style={{ marginTop: '20px' }}>
