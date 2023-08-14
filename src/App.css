@@ -25,10 +25,11 @@
     border: 2px solid #FF8F00;
 }
 
-.css-1cj0fk2-MuiButtonBase-root-MuiRadio-root.Mui-checked.done-filter-input {
-    color: #FFFFFF;
+.css-1cj0fk2-MuiButtonBase-root-MuiRadio-root.Mui-checked.done-filter-input, 
+.css-194oywu.Mui-checked {
+    color: #FFFFFF !important;
 }
 
-.css-3o0168-MuiTypography-root {
+.css-3o0168-MuiTypography-root, .css-1qi9vj3 {
     font-size: .8rem !important;
 }
