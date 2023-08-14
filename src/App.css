@@ -12,6 +12,10 @@
     flex-direction: row !important;
 }
 
+#task.taskCompleted {
+    background-color: rgb(153, 153, 153);
+}
+
 #toolbar {
     display: flex;
     justify-content: space-between;
@@ -41,8 +45,3 @@
     font-size: .8rem !important;
 }
 
-@media(max-width: 1135px) {
-    .radio-group {
-        
-    }
-}

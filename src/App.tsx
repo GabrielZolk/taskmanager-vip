@@ -1,4 +1,5 @@
-import { useState, useRef, useEffect } from 'react';
+import './App.css';
+import { useRef, useEffect } from 'react';
 import {
   AppBar,
   Toolbar,
@@ -26,26 +27,35 @@ import SearchIcon from '@mui/icons-material/Search';
 import ClearIcon from '@mui/icons-material/Clear';
 import MenuIcon from '@mui/icons-material/Menu';
 
-import './App.css';
+import { Task } from './types/Task';
 
-interface Task {
-  id: number;
-  content: string;
-  completed: boolean;
-}
+import { useSelector, useDispatch } from 'react-redux';
+import { RootState } from './redux';
+
+import { setValidationError } from './redux/validationErrorSlice';
+import { setIsMenuOpen } from './redux/menuSlice';
+import { setFilterOption } from './redux/filterOptionsSlice';
+import { setFilteredTasks } from './redux/filterTasksSlice';
+import { setSearchTerm } from './redux/searchTermSlice';
+import { setCurrentPage } from './redux/currentPageSlice';
+import { setEditingTask } from './redux/editingTaskSlice';
+import { setIsModalOpen } from './redux/modalSlice';
+import { setTaskInput } from './redux/taskInputSlice';
+import { setTasks } from './redux/tasksSlice';
 
 function App() {
-  const [tasks, setTasks] = useState<Task[]>([]);
-  const [taskInput, setTaskInput] = useState('');
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [editingTask, setEditingTask] = useState<Task | null>(null);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [filteredTasks, setFilteredTasks] = useState<Task[]>([]);
-  const [filterOption, setFilterOption] = useState<'all' | 'completed' | 'incomplete'>('all');
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [validationError, setValidationError] = useState<string>('');
+  const validationError = useSelector((state: RootState) => state.validationErrorSlice.value);
+  const isMenuOpen = useSelector((state: RootState) => state.menuSlice.value);
+  const filterOption = useSelector((state: RootState) => state.filterOptionsSlice.value);
+  const filteredTasks = useSelector((state: RootState) => state.filterTasksSlice.value);
+  const searchTerm = useSelector((state: RootState) => state.searchTermSlice.value);
+  const currentPage = useSelector((state: RootState) => state.currentPageSlice.value);
+  const editingTask = useSelector((state: RootState) => state.editingTaskSlice.value);
+  const isModalOpen = useSelector((state: RootState) => state.modalSlice.value);
+  const taskInput = useSelector((state: RootState) => state.taskInputSlice.value);
+  const tasks = useSelector((state: RootState) => state.tasksSlice.value);
 
+  const dispatch = useDispatch();
   const isScreenWide = useMediaQuery('(min-width:1141px)');
   const isScreenNarrow = useMediaQuery('(max-width:1140px)');
 
@@ -72,8 +82,8 @@ function App() {
     const filtered = tasks.filter(task =>
       task.content.toLowerCase().includes(searchTerm.toLowerCase())
     );
-    setFilteredTasks(filtered);
-  }, [tasks, searchTerm]);
+    dispatch(setFilteredTasks(filtered));
+  }, [tasks, searchTerm, dispatch]);
 
   const saveTasksToLocalStorage = (tasks: Task[]) => {
     localStorage.setItem('tasks', JSON.stringify(tasks));
@@ -88,10 +98,10 @@ function App() {
     const loadedTasks = loadTasksFromLocalStorage();
 
     if (loadedTasks.length > 0) {
-      setTasks(loadedTasks);
-      setFilteredTasks(loadedTasks);
+      dispatch(setTasks(loadedTasks));
+      dispatch(setFilteredTasks(loadedTasks));
     }
-  }, []);
+  }, [dispatch]);
 
   useEffect(() => {
     saveTasksToLocalStorage(tasks);
@@ -104,36 +114,36 @@ function App() {
         content: taskInput,
         completed: false,
       };
-      setTasks([...tasks, newTask]);
-      setTaskInput('');
+      dispatch(setTasks([...tasks, newTask]));
+      dispatch(setTaskInput(''));
     }
   };
 
   const handleTaskDelete = (id: number) => {
     const newTasks = tasks.filter(task => task.id !== id);
-    setTasks(newTasks);
+    dispatch(setTasks(newTasks));
   };
 
   const handleTaskEdit = (id: number, content: string) => {
-    setEditingTask({ id, content, completed: false });
-    setIsModalOpen(true);
+    dispatch(setEditingTask({ id, content, completed: false }));
+    dispatch(setIsModalOpen(true));
   };
 
   const handleModalClose = () => {
-    setIsModalOpen(false);
-    setEditingTask(null);
+    dispatch(setIsModalOpen(false));
+    dispatch(setEditingTask(null));
   };
 
   const handleTaskUpdate = () => {
     if (editingTask && editingTask.content.trim() === '') {
-      setValidationError('Task cannot be empty');
+      dispatch(setValidationError('Task cannot be empty'));
       return;
     }
 
     const updatedTasks = tasks.map(task =>
       task.id === editingTask?.id ? { ...task, content: editingTask.content } : task
     );
-    setTasks(updatedTasks);
+    dispatch(setTasks(updatedTasks));
     handleModalClose();
     setValidationError('');
   };
@@ -142,7 +152,7 @@ function App() {
     const updatedTasks = tasks.map(task =>
       task.id === id ? { ...task, completed: !task.completed } : task
     );
-    setTasks(updatedTasks);
+    dispatch(setTasks(updatedTasks));
   };
 
   return (
@@ -156,11 +166,11 @@ function App() {
                 label="Search tasks..."
                 variant="outlined"
                 value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
+                onChange={(e) => dispatch(setSearchTerm(e.target.value))}
                 InputProps={{
                   endAdornment: (
                     <Box display="flex" alignItems="center">
-                      <IconButton onClick={() => setSearchTerm('')} edge="end">
+                      <IconButton onClick={() => dispatch(setSearchTerm(''))} edge="end">
                         {searchTerm ? <ClearIcon /> : <SearchIcon />}
                       </IconButton>
                     </Box>
@@ -173,7 +183,7 @@ function App() {
                 name="task-filter"
                 value={filterOption}
                 onChange={(e) =>
-                  setFilterOption(e.target.value as 'all' | 'completed' | 'incomplete')
+                  dispatch(setFilterOption(e.target.value as 'all' | 'completed' | 'incomplete'))
                 }
                 style={{ flexDirection: 'row' }}
               >
@@ -185,7 +195,7 @@ function App() {
           )}
           {isScreenNarrow && (
             <IconButton
-              onClick={() => setIsMenuOpen(!isMenuOpen)}
+              onClick={() => dispatch(setIsMenuOpen(!isMenuOpen))}
               edge="end"
               color="inherit"
               aria-label="menu"
@@ -195,17 +205,17 @@ function App() {
           )}
         </Toolbar>
       </AppBar>
-      <Drawer anchor="right" open={isMenuOpen} onClose={() => setIsMenuOpen(false)}>
+      <Drawer anchor="right" open={isMenuOpen} onClose={() => dispatch(setIsMenuOpen(false))}>
         <div style={{ width: 280, backgroundColor: '#333', minHeight: '100vh' }}>
           <TextField
             label="Search tasks..."
             variant="outlined"
             value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
+            onChange={(e) => dispatch(setSearchTerm(e.target.value))}
             InputProps={{
               endAdornment: (
                 <Box display="flex" alignItems="center">
-                  <IconButton onClick={() => setSearchTerm('')} edge="end">
+                  <IconButton onClick={() => dispatch(setSearchTerm(''))} edge="end">
                     {searchTerm ? <ClearIcon /> : <SearchIcon />}
                   </IconButton>
                 </Box>
@@ -219,7 +229,7 @@ function App() {
             name="task-filter"
             value={filterOption}
             onChange={(e) =>
-              setFilterOption(e.target.value as 'all' | 'completed' | 'incomplete')
+              dispatch(setFilterOption(e.target.value as 'all' | 'completed' | 'incomplete'))
             }
             style={{ flexDirection: 'column', margin: '10px' }}
           >
@@ -235,7 +245,7 @@ function App() {
           variant="outlined"
           fullWidth
           value={taskInput}
-          onChange={(e) => setTaskInput(e.target.value)}
+          onChange={(e) => dispatch(setTaskInput(e.target.value))}
           onKeyDown={(e) => e.key === 'Enter' && handleTaskAdd()}
         />
         <Button
@@ -298,7 +308,7 @@ function App() {
           <Button
             variant="outlined"
             disabled={currentPage === 1}
-            onClick={() => setCurrentPage(currentPage - 1)}
+            onClick={() => dispatch(setCurrentPage(currentPage - 1))}
           >
             Previous
           </Button>
@@ -308,7 +318,7 @@ function App() {
           <Button
             variant="outlined"
             disabled={currentPage === totalPages}
-            onClick={() => setCurrentPage(currentPage + 1)}
+            onClick={() => dispatch(setCurrentPage(currentPage + 1))}
           >
             Next
           </Button>
@@ -328,9 +338,9 @@ function App() {
               variant="outlined"
               value={editingTask ? editingTask.content : ''}
               onChange={e => {
-                setEditingTask({ ...editingTask!, content: e.target.value });
+                dispatch(setEditingTask({ ...editingTask!, content: e.target.value }));
                 if (e.target.value.trim() !== '') {
-                  setValidationError('');
+                  dispatch(setValidationError(''));
                 }
               }}
               inputRef={editInputRef}
