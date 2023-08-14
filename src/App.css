@@ -8,6 +8,13 @@
     background-color: #FFFFFF;
     border-radius: 10px;
     margin-bottom: 10px;
+    display: flex !important;
+    flex-direction: row !important;
+}
+
+#toolbar {
+    display: flex;
+    justify-content: space-between;
 }
 
 #toolbar, #addtask, #modal-title {
@@ -32,4 +39,10 @@
 
 .css-3o0168-MuiTypography-root, .css-1qi9vj3 {
     font-size: .8rem !important;
+}
+
+@media(max-width: 1135px) {
+    .radio-group {
+        
+    }
 }

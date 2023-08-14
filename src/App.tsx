@@ -16,12 +16,16 @@ import {
   FormControlLabel,
   Radio,
   RadioGroup,
+  Drawer,
+  useMediaQuery,
 } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 import SearchIcon from '@mui/icons-material/Search';
 import ClearIcon from '@mui/icons-material/Clear';
+import MenuIcon from '@mui/icons-material/Menu';
+
 import './App.css';
 
 interface Task {
@@ -39,6 +43,11 @@ function App() {
   const [searchTerm, setSearchTerm] = useState('');
   const [filteredTasks, setFilteredTasks] = useState<Task[]>([]);
   const [filterOption, setFilterOption] = useState<'all' | 'completed' | 'incomplete'>('all');
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [validationError, setValidationError] = useState<string>('');
+
+  const isScreenWide = useMediaQuery('(min-width:1141px)');
+  const isScreenNarrow = useMediaQuery('(max-width:1140px)');
 
   const editInputRef = useRef<HTMLInputElement | null>(null);
   const tasksPerPage = 5;
@@ -116,13 +125,17 @@ function App() {
   };
 
   const handleTaskUpdate = () => {
-    if (editingTask) {
-      const updatedTasks = tasks.map(task =>
-        task.id === editingTask.id ? { ...task, content: editingTask.content } : task
-      );
-      setTasks(updatedTasks);
-      handleModalClose();
+    if (editingTask && editingTask.content.trim() === '') {
+      setValidationError('Task cannot be empty');
+      return;
     }
+
+    const updatedTasks = tasks.map(task =>
+      task.id === editingTask?.id ? { ...task, content: editingTask.content } : task
+    );
+    setTasks(updatedTasks);
+    handleModalClose();
+    setValidationError('');
   };
 
   const handleTaskToggleCompleted = (id: number) => {
@@ -137,6 +150,53 @@ function App() {
       <AppBar position="static">
         <Toolbar id="toolbar">
           <Typography variant="h6">Task Manager</Typography>
+          {isScreenWide && (
+            <>
+              <TextField
+                label="Search tasks..."
+                variant="outlined"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                InputProps={{
+                  endAdornment: (
+                    <Box display="flex" alignItems="center">
+                      <IconButton onClick={() => setSearchTerm('')} edge="end">
+                        {searchTerm ? <ClearIcon /> : <SearchIcon />}
+                      </IconButton>
+                    </Box>
+                  ),
+                }}
+                style={{ margin: '10px' }}
+              />
+              <RadioGroup
+                aria-label="task-filter"
+                name="task-filter"
+                value={filterOption}
+                onChange={(e) =>
+                  setFilterOption(e.target.value as 'all' | 'completed' | 'incomplete')
+                }
+                style={{ flexDirection: 'row' }}
+              >
+                <FormControlLabel value="all" control={<Radio className="done-filter-input" />} label="All" />
+                <FormControlLabel value="completed" control={<Radio className="done-filter-input" />} label="Complete" />
+                <FormControlLabel value="incomplete" control={<Radio className="done-filter-input" />} label="Incomplete" />
+              </RadioGroup>
+            </>
+          )}
+          {isScreenNarrow && (
+            <IconButton
+              onClick={() => setIsMenuOpen(!isMenuOpen)}
+              edge="end"
+              color="inherit"
+              aria-label="menu"
+            >
+              <MenuIcon />
+            </IconButton>
+          )}
+        </Toolbar>
+      </AppBar>
+      <Drawer anchor="right" open={isMenuOpen} onClose={() => setIsMenuOpen(false)}>
+        <div style={{ width: 280, backgroundColor: '#333', minHeight: '100vh' }}>
           <TextField
             label="Search tasks..."
             variant="outlined"
@@ -145,33 +205,30 @@ function App() {
             InputProps={{
               endAdornment: (
                 <Box display="flex" alignItems="center">
-                  <IconButton
-                    onClick={() => setSearchTerm('')}
-                    edge="end"
-                  >
+                  <IconButton onClick={() => setSearchTerm('')} edge="end">
                     {searchTerm ? <ClearIcon /> : <SearchIcon />}
                   </IconButton>
                 </Box>
               ),
             }}
-            style={{ margin: '0 auto' }}
+            style={{ margin: '10px', display: 'flex', justifyContent: 'center' }}
           />
+
           <RadioGroup
             aria-label="task-filter"
             name="task-filter"
             value={filterOption}
-            onChange={(e) => setFilterOption(e.target.value as 'all' | 'completed' | 'incomplete')}
-            style={{ flexDirection: 'row' }}
+            onChange={(e) =>
+              setFilterOption(e.target.value as 'all' | 'completed' | 'incomplete')
+            }
+            style={{ flexDirection: 'column', margin: '10px' }}
           >
-            <Typography variant="subtitle1" gutterBottom style={{ display: 'flex', alignItems: 'center', margin: '0 5px 0 0' }}>
-              Filter:
-            </Typography>
-            <FormControlLabel value="all" control={<Radio className='done-filter-input' />} label="All" />
-            <FormControlLabel value="completed" control={<Radio className='done-filter-input' />} label="Complete" />
-            <FormControlLabel value="incomplete" control={<Radio className='done-filter-input' />} label="Incomplete" />
+            <FormControlLabel value="all" control={<Radio className="done-filter-input" />} label="All" />
+            <FormControlLabel value="completed" control={<Radio className="done-filter-input" />} label="Complete" />
+            <FormControlLabel value="incomplete" control={<Radio className="done-filter-input" />} label="Incomplete" />
           </RadioGroup>
-        </Toolbar>
-      </AppBar>
+        </div>
+      </Drawer>
       <Container style={{ marginTop: '20px' }}>
         <TextField
           label="Type your task here..."
@@ -196,6 +253,7 @@ function App() {
               id='task'
               key={task.id}
               className={task.completed ? 'taskCompleted' : ''}
+              style={{ wordWrap: 'break-word' }}
             >
               <ListItemText
                 primary={task.content}
@@ -260,7 +318,7 @@ function App() {
           onClose={handleModalClose}
           aria-labelledby="modal-title"
         >
-          <Box id='modal' sx={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', width: 600, bgcolor: 'background.paper', boxShadow: 24, p: 6 }}>
+          <Box id='modal' sx={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', width: isScreenWide ? 600 : 300, bgcolor: 'background.paper', boxShadow: 24, p: 6 }}>
             <Typography id="modal-title" variant="h6" component="h2">
               Edit Task
             </Typography>
@@ -269,8 +327,15 @@ function App() {
               label="Edit task"
               variant="outlined"
               value={editingTask ? editingTask.content : ''}
-              onChange={e => setEditingTask({ ...editingTask!, content: e.target.value })}
+              onChange={e => {
+                setEditingTask({ ...editingTask!, content: e.target.value });
+                if (e.target.value.trim() !== '') {
+                  setValidationError('');
+                }
+              }}
               inputRef={editInputRef}
+              error={validationError !== ''}
+              helperText={validationError}
             />
             <Button variant="contained" color="primary" style={{ marginTop: '10px' }} onClick={handleTaskUpdate}>
               Save
