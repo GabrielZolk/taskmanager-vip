@@ -13,6 +13,9 @@ import {
   IconButton,
   Modal,
   Box,
+  FormControlLabel,
+  Radio,
+  RadioGroup,
 } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
@@ -35,12 +38,24 @@ function App() {
   const [currentPage, setCurrentPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState('');
   const [filteredTasks, setFilteredTasks] = useState<Task[]>([]);
+  const [filterOption, setFilterOption] = useState<'all' | 'completed' | 'incomplete'>('all');
+
   const editInputRef = useRef<HTMLInputElement | null>(null);
   const tasksPerPage = 5;
 
   const indexOfLastTask = currentPage * tasksPerPage;
   const indexOfFirstTask = indexOfLastTask - tasksPerPage;
-  const currentTasks = filteredTasks.slice(indexOfFirstTask, indexOfLastTask);
+
+  const currentTasks = filteredTasks
+    .filter(task => {
+      if (filterOption === 'completed') {
+        return task.completed;
+      } else if (filterOption === 'incomplete') {
+        return !task.completed;
+      }
+      return true;
+    })
+    .slice(indexOfFirstTask, indexOfLastTask);
 
   const totalPages = filteredTasks.length > 0 ? Math.ceil(filteredTasks.length / tasksPerPage) : 1;
 
@@ -50,6 +65,28 @@ function App() {
     );
     setFilteredTasks(filtered);
   }, [tasks, searchTerm]);
+
+  const saveTasksToLocalStorage = (tasks: Task[]) => {
+    localStorage.setItem('tasks', JSON.stringify(tasks));
+  };
+
+  const loadTasksFromLocalStorage = () => {
+    const tasksFromLocalStorage = localStorage.getItem('tasks');
+    return tasksFromLocalStorage ? JSON.parse(tasksFromLocalStorage) : [];
+  };
+
+  useEffect(() => {
+    const loadedTasks = loadTasksFromLocalStorage();
+
+    if (loadedTasks.length > 0) {
+      setTasks(loadedTasks);
+      setFilteredTasks(loadedTasks);
+    }
+  }, []);
+
+  useEffect(() => {
+    saveTasksToLocalStorage(tasks);
+  }, [tasks]);
 
   const handleTaskAdd = () => {
     if (taskInput) {
@@ -119,7 +156,20 @@ function App() {
             }}
             style={{ margin: '0 auto' }}
           />
-
+          <RadioGroup
+            aria-label="task-filter"
+            name="task-filter"
+            value={filterOption}
+            onChange={(e) => setFilterOption(e.target.value as 'all' | 'completed' | 'incomplete')}
+            style={{ flexDirection: 'row' }}
+          >
+            <Typography variant="subtitle1" gutterBottom style={{ display: 'flex', alignItems: 'center', margin: '0 5px 0 0' }}>
+              Filter:
+            </Typography>
+            <FormControlLabel value="all" control={<Radio className='done-filter-input' />} label="All" />
+            <FormControlLabel value="completed" control={<Radio className='done-filter-input' />} label="Complete" />
+            <FormControlLabel value="incomplete" control={<Radio className='done-filter-input' />} label="Incomplete" />
+          </RadioGroup>
         </Toolbar>
       </AppBar>
       <Container style={{ marginTop: '20px' }}>
@@ -147,7 +197,17 @@ function App() {
               key={task.id}
               className={task.completed ? 'taskCompleted' : ''}
             >
-              <ListItemText primary={task.content} />
+              <ListItemText
+                primary={task.content}
+                secondary={`Created at: ${new Date(task.id).toLocaleString('en-US', {
+                  year: 'numeric',
+                  month: 'long',
+                  day: 'numeric',
+                  hour: '2-digit',
+                  minute: '2-digit',
+                })}`}
+                className="task-date"
+              />
               <ListItemSecondaryAction>
                 <IconButton
                   edge="end"

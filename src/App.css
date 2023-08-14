@@ -24,3 +24,11 @@
     background-color: #333;
     border: 2px solid #FF8F00;
 }
+
+.css-1cj0fk2-MuiButtonBase-root-MuiRadio-root.Mui-checked.done-filter-input {
+    color: #FFFFFF;
+}
+
+.css-3o0168-MuiTypography-root {
+    font-size: .8rem !important;
+}
