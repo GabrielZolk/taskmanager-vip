@@ -1,0 +1,26 @@
+.taskCompleted {
+    text-decoration: line-through !important;
+    color: #b4b4b4 !important;
+}
+
+#task {
+    color: #333;
+    background-color: #FFFFFF;
+    border-radius: 10px;
+    margin-bottom: 10px;
+}
+
+#toolbar, #addtask, #modal-title {
+    color: #FFFFFF;
+}
+
+.css-1t8l2tu-MuiInputBase-input-MuiOutlinedInput-input, 
+.MuiOutlinedInput-notchedOutline, 
+.css-1d3z3hw-MuiOutlinedInput-notchedOutline {
+    border-color: #FF8F00 !important;
+}
+
+#modal {
+    background-color: #333;
+    border: 2px solid #FF8F00;
+}
