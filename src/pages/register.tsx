@@ -8,7 +8,7 @@ export default function RegisterPage() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
-    const [error, setError] = useState("");
+    const [message, setMessage] = useState("");
 
     const auth = getAuth(firebaseConfig);
     const navigate = useNavigate();
@@ -26,21 +26,33 @@ export default function RegisterPage() {
     }, [auth, navigate]);
 
     const handleRegister = () => {
-        setError("");
+        setMessage("");
 
+        if (!email || !password || !confirmPassword) {
+            setMessage("Please fill in all fields.");
+            return;
+        }
+    
+        if (!/\S+@\S+\.\S+/.test(email)) {
+            setMessage("Please enter a valid email address.");
+            return;
+        }
+    
         if (password !== confirmPassword) {
-            setError("Passwords do not match.");
+            setMessage("Passwords do not match.");
             return;
         }
 
         createUserWithEmailAndPassword(auth, email, password)
             .then(() => {
-                console.log("Successfully registered user.");
-                navigate("/login");
+                setMessage("Successfully registered user.");
             })
             .catch((error) => {
-                setError("An error occurred while registering the user. Check the entered data.");
-                console.error("User registration error:", error);
+                if (error.code === "auth/weak-password") {
+                    setMessage("Password should be at least 6 characters.");
+                } else {
+                    setMessage("An error occurred while registering the user. Check the entered data.");
+                }
             });
     };
 
@@ -65,7 +77,7 @@ export default function RegisterPage() {
                 <div>
                     <button type="button" className='outline register-button' onClick={() => {navigate('/login')}}>Login</button>
                 </div>
-                {error && <div className="error-message">{error}</div>}
+                {message && <div className="error-message">{message}</div>}
             </form>
         </div>
     );

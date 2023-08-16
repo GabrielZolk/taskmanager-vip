@@ -8,7 +8,7 @@ import { useNavigate } from 'react-router-dom';
 export default function LoginPage() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
-    const [error, setError] = useState("");
+    const [message, setMessage] = useState("");
 
     const auth = getAuth(firebaseConfig);
     const navigate = useNavigate();
@@ -26,7 +26,7 @@ export default function LoginPage() {
     }, [auth, navigate]);
 
     const handleLogin = () => {
-        setError("");
+        setMessage("");
 
         signInWithEmailAndPassword(auth, email, password)
             .then((userCredential) => {
@@ -35,8 +35,15 @@ export default function LoginPage() {
                 navigate("/");
             })
             .catch((error) => {
-                setError("An error occurred while logging in. check your credentials.");
-                console.error("Login error:", error);
+                if (error.code === "auth/invalid-email") {
+                    setMessage("Invalid email");
+                } else if (error.code === "auth/user-not-found") {
+                    setMessage("User Not Found");
+                } else if (error.code === "auth/wrong-password") {
+                    setMessage("Wrong password. Try again");
+                } else {
+                    setMessage(`An error occurred while logging in: ${error}`);
+                }
             });
     };
 
@@ -70,7 +77,7 @@ export default function LoginPage() {
                 <div>
                     <button type='button' className='outline login-button' onClick={() => navigate('/register')}>Register</button>
                 </div>
-                {error && <div className="error-message">{error}</div>}
+                {message && <div className="error-message">{message}</div>}
             </form>
         </div>
     );
