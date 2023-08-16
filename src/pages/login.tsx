@@ -55,6 +55,8 @@ export default function LoginPage() {
             .catch((error) => {
                 if (error.code === "auth/missing-email") {
                     setMessage("Enter your email");
+                } else if (error.code === "auth/invalid-email") {
+                    setMessage("Invalid email");
                 } else if (error.code === "auth/user-not-found") {
                     setMessage("User Not Found");
                 } else {
