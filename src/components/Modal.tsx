@@ -3,35 +3,39 @@ import { reduxImports } from '../redux/appExports';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../redux';
 import { useRef } from 'react';
+import { updateTaskInDatabase } from '../services/updateDatabase';
 
 export default function ModalComponent() {
     const isModalOpen = useSelector((state: RootState) => state.modalSlice.value);
     const validationError = useSelector((state: RootState) => state.validationErrorSlice.value);
     const editingTask = useSelector((state: RootState) => state.editingTaskSlice.value);
-    const editInputRef = useRef<HTMLInputElement | null>(null);
     const tasks = useSelector((state: RootState) => state.tasksSlice.value);
+    const editInputRef = useRef<HTMLInputElement | null>(null);
 
     const dispatch = useDispatch();
     const isScreenWide = useMediaQuery('(min-width:1141px)');
-    
+
     const handleModalClose = () => {
         dispatch(reduxImports.setIsModalOpen(false));
         dispatch(reduxImports.setEditingTask(null));
-      };
-    
-      const handleTaskUpdate = () => {
+    };
+
+    const handleTaskUpdate = () => {
         if (editingTask && editingTask.content.trim() === '') {
-          dispatch(reduxImports.setValidationError('Task cannot be empty'));
-          return;
+            dispatch(reduxImports.setValidationError('Task cannot be empty'));
+            return;
         }
-    
+
         const updatedTasks = tasks.map(task =>
-          task.id === editingTask?.id ? { ...task, content: editingTask.content } : task
+            task.id === editingTask?.id ? { ...task, content: editingTask.content } : task
         );
+    
+        updateTaskInDatabase(editingTask!)
+
         dispatch(reduxImports.setTasks(updatedTasks));
         handleModalClose();
         dispatch(reduxImports.setValidationError(''));
-      };
+    };
 
     return (
         <Modal

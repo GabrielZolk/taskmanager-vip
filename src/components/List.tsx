@@ -11,6 +11,8 @@ import {
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../redux';
 import { reduxImports } from '../redux/appExports';
+import { deleteTaskFromDatabase } from '../services/deleteDatabase';
+import { updateTaskCompletedStatus } from '../services/updateToggle';
 
 interface ListComponentProps {
     tasksPerPage: number;
@@ -26,22 +28,26 @@ export default function ListComponent({ tasksPerPage }: ListComponentProps) {
     const indexOfFirstTask = indexOfLastTask - tasksPerPage;
     const dispatch = useDispatch();
 
-    const handleTaskDelete = (id: number) => {
+    const handleTaskDelete = (id: string) => {
         const newTasks = tasks.filter(task => task.id !== id);
+        deleteTaskFromDatabase(id)
         dispatch(reduxImports.setTasks(newTasks));
     };
 
-    const handleTaskEdit = (id: number, content: string) => {
+    const handleTaskEdit = (id: string, content: string) => {
         dispatch(reduxImports.setEditingTask({ id, content, completed: false }));
         dispatch(reduxImports.setIsModalOpen(true));
     };
 
-    const handleTaskToggleCompleted = (id: number) => {
+    const handleTaskToggleCompleted = (id: string, currentCompletedStatus: boolean) => {
         const updatedTasks = tasks.map(task =>
-            task.id === id ? { ...task, completed: !task.completed } : task
+            task.id === id ? { ...task, completed: !currentCompletedStatus } : task
         );
+    
+        updateTaskCompletedStatus(id, !currentCompletedStatus);
         dispatch(reduxImports.setTasks(updatedTasks));
     };
+    
 
     const currentTasks = filteredTasks
         .filter(task => {
@@ -65,7 +71,7 @@ export default function ListComponent({ tasksPerPage }: ListComponentProps) {
                 >
                     <ListItemText
                         primary={task.content}
-                        secondary={`Created at: ${new Date(task.id).toLocaleString('en-US', {
+                        secondary={`Created at: ${new Date(task.date!).toLocaleString('en-US', {
                             year: 'numeric',
                             month: 'long',
                             day: 'numeric',
@@ -85,7 +91,7 @@ export default function ListComponent({ tasksPerPage }: ListComponentProps) {
                         <IconButton
                             edge="end"
                             aria-label="complete"
-                            onClick={() => handleTaskToggleCompleted(task.id)}
+                            onClick={() => handleTaskToggleCompleted(task.id, task.completed)}
                         >
                             <CheckCircleOutlineIcon
                                 color={task.completed ? 'primary' : 'inherit'}

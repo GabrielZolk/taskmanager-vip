@@ -3,11 +3,10 @@ import { useEffect } from 'react';
 import { AppBar, Container } from '@mui/material';
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState } from './redux';
+import { v4 } from 'uuid';
 
 import { Task } from './types/Task';
 import { reduxImports } from './redux/appExports';
-import { saveTasksToLocalStorage } from './utils/saveLocalStorage';
-import { loadTasksFromLocalStorage } from './utils/loadLocalStorage';
 
 import ModalComponent from './components/Modal';
 import ListComponent from './components/List';
@@ -17,6 +16,8 @@ import ToolbarComponent from './components/Toolbar';
 import PagesComponent from './components/PagesComponent';
 import TaskInput from './components/TaskInput';
 import LogoutButton from './components/LogoutButton';
+import { loadTasksFromDatabase } from './services/loadDatabase';
+import { saveTaskToDatabase } from './services/saveDatabase';
 
 function App() {
   const searchTerm = useSelector((state: RootState) => state.searchTermSlice.value);
@@ -36,27 +37,29 @@ function App() {
   }, [tasks, searchTerm, dispatch]);
 
   useEffect(() => {
-    const loadedTasks = loadTasksFromLocalStorage();
+    const fetchTasks = async () => {
+        const loadedTasks = await loadTasksFromDatabase();
 
-    if (loadedTasks.length > 0) {
-      dispatch(reduxImports.setTasks(loadedTasks));
-      dispatch(reduxImports.setFilteredTasks(loadedTasks));
-    }
-  }, [dispatch]);
+        if (loadedTasks.length > 0) {
+            dispatch(reduxImports.setTasks(loadedTasks));
+            dispatch(reduxImports.setFilteredTasks(loadedTasks));
+        }
+    };
 
-  useEffect(() => {
-    saveTasksToLocalStorage(tasks);
-  }, [tasks]);
+    fetchTasks();
+}, [dispatch]);
 
   const handleTaskAdd = () => {
     if (taskInput) {
       const newTask: Task = {
-        id: Date.now(),
+        id: v4(),
+        date: Date.now(),
         content: taskInput,
         completed: false,
       };
       dispatch(reduxImports.setTasks([...tasks, newTask]));
       dispatch(reduxImports.setTaskInput(''));
+      saveTaskToDatabase(newTask)
     }
   };
 
