@@ -16,6 +16,7 @@ import DrawerComponent from './components/Drawer';
 import ToolbarComponent from './components/Toolbar';
 import PagesComponent from './components/PagesComponent';
 import TaskInput from './components/TaskInput';
+import LogoutButton from './components/LogoutButton';
 
 function App() {
   const searchTerm = useSelector((state: RootState) => state.searchTermSlice.value);
@@ -71,6 +72,7 @@ function App() {
         <ListComponent tasksPerPage={tasksPerPage} />
         <PagesComponent tasksPerPage={tasksPerPage} />
         <ModalComponent />
+        <LogoutButton />
       </Container>
     </div>
   );

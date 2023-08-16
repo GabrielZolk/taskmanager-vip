@@ -24,9 +24,9 @@ const TaskFilterComponent: React.FC<TaskFilterComponentProps> = ({ style }) => {
       onChange={handleFilterChange}
       style={{ flexDirection: style?.flexDirection }}
     >
-      <FormControlLabel value="all" control={<Radio className="done-filter-input" />} label="Todos" />
-      <FormControlLabel value="completed" control={<Radio className="done-filter-input" />} label="Completos" />
-      <FormControlLabel value="incomplete" control={<Radio className="done-filter-input" />} label="Incompletos" />
+      <FormControlLabel value="all" control={<Radio className="done-filter-input" />} label="All" />
+      <FormControlLabel value="completed" control={<Radio className="done-filter-input" />} label="Completed" />
+      <FormControlLabel value="incomplete" control={<Radio className="done-filter-input" />} label="Incomplete" />
     </RadioGroup>
   );
 };
