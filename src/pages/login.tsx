@@ -31,7 +31,7 @@ export default function LoginPage() {
         signInWithEmailAndPassword(auth, email, password)
             .then((userCredential) => {
                 const user = userCredential.user;
-                console.log("User logged in:", user);
+                setMessage(`User logged in: ${user}`);
                 navigate("/");
             })
             .catch((error) => {
@@ -50,10 +50,16 @@ export default function LoginPage() {
     const handlePasswordReset = () => {
         sendPasswordResetEmail(auth, email)
             .then(() => {
-                console.log("Password recovery email sent.");
+                setMessage("Password recovery email sent, check your email.");
             })
             .catch((error) => {
-                console.error("Error sending password recovery email:", error);
+                if (error.code === "auth/missing-email") {
+                    setMessage("Enter your email");
+                } else if (error.code === "auth/user-not-found") {
+                    setMessage("User Not Found");
+                } else {
+                    setMessage(`Error sending password recovery email: ${error}`)
+                }
             });
     };
 
