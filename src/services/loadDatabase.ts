@@ -8,18 +8,26 @@ export const loadTasksFromDatabase = async () => {
     }
     
     const userUid = user.uid;
+
+    let apiUrl = '';
+
+    if (process.env.NODE_ENV === 'production') {
+        apiUrl = 'https://taskmanager-vip-backend-vq3o.vercel.app';
+    } else {
+        apiUrl = 'http://localhost:3000';
+    }
     
     try {
-        const response = await fetch(`http://localhost:3000/api/tasks?userUid=${userUid}`);
+        const response = await fetch(`${apiUrl}/api/tasks?userUid=${userUid}`);
         if(response.ok) {
             const tasks = await response.json();
             return tasks;
         } else {
-            console.error('Failed to fetch tasks from API.');
+            console.error('Falha ao buscar as tarefas da API.');
             return [];
         }
     } catch (error) {
-        console.error("An error occurred:", error);
+        console.error("Ocorreu um erro:", error);
         return [];
     }
 }
