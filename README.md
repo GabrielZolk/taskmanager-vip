@@ -1,8 +1,10 @@
-# Aplicação de Gerenciamento de Tarefas
+# Aplicação de Gerenciamento de Tarefas FULL STACK
 
-Esta é uma aplicação de gerenciamento de tarefas desenvolvida utilizando a biblioteca de componentes Material-UI em conjunto com o React. Ela permite que os usuários criem, editem, excluam e filtrem tarefas, além de marcar tarefas como concluídas ou incompletas.
+Esta é uma aplicação de gerenciamento de tarefas fullstack desenvolvida no frontend utilizando a biblioteca de componentes Material-UI em conjunto com o React e no backend express, node e firebase. Ela permite que os usuários criem, editem, excluam e filtrem tarefas, além de marcar tarefas como concluídas ou incompletas.
 
 ## Funcionalidades
+
+- A aplicação utiliza um banco de dados real e possui um sistema de autenticação com email e senha.
 
 - Adicionar tarefas: Os usuários podem adicionar novas tarefas digitando o conteúdo da tarefa no campo de entrada e pressionando "Enter" ou clicando no botão "Add Task".
 
@@ -22,11 +24,11 @@ Esta é uma aplicação de gerenciamento de tarefas desenvolvida utilizando a bi
 
 A interface do usuário é responsiva, adaptando-se a diferentes tamanhos de tela. Para telas amplas, a barra de pesquisa e os filtros são exibidos na parte superior. Para telas estreitas, um menu lateral é exibido, permitindo que os usuários acessem a barra de pesquisa e os filtros.
 
-## Armazenamento Local
+## Armazenamento e Autenticação
 
-As tarefas são salvas no armazenamento local do navegador, permitindo que os usuários mantenham suas tarefas mesmo após atualizar a página ou fechar o navegador.
+Como mencionado, as tarefas são salvas no banco de dados, permitindo que os usuários mantenham suas tarefas mesmo após atualizar a página ou fechar o navegador. Além disso, graças ao sistema de autenticação, cada usuário possui sua própria coleção de tarefas. Suas tarefas são exibidas somente para você.
 
-## Como Executar a Aplicação
+## EXECUTANDO O FRONTEND:
 
 1. Certifique-se de ter o Node.js instalado em seu sistema.
 
@@ -41,3 +43,30 @@ As tarefas são salvas no armazenamento local do navegador, permitindo que os us
 5. Após a instalação das dependências, execute o seguinte comando para iniciar a aplicação
 
    npm run dev
+
+## EXECUTANDO O BACKEND:
+
+1. Certifique-se de ter o Node.js instalado em seu sistema.
+
+2. Clone este repositório para o seu computador.
+
+3. Navegue até o diretório do projeto no terminal.
+
+4. Execute o seguinte comando para instalar as dependências:
+   
+   npm install
+
+5. Após a instalação das dependências, execute o seguinte comando para iniciar a aplicação
+
+   npm start
+
+## Tudo dando certo:
+
+A aplicação backend após o comando deve exibir no terminal 'Running XD'.
+Ela tambem precisa estar na porta 3000. (Por padrão)
+
+Já no projeto front, após rodar o comando será fornecido o link da aplicação.
+
+Basta copiar e colar no navegador ou segurar 'CTRL' e clicar para que a aplicação seja aberta.
+
+A página exibida será a tela de login, caso já possua uma conta, basta logar, caso não, registre-se.
