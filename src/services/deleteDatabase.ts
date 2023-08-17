@@ -1,6 +1,4 @@
-import { Task } from "../types/Task";
-
-export const deleteTaskFromDatabase = async (taskId: Task) => {
+export const deleteTaskFromDatabase = async (taskId: string) => {
     try {
         const response = await fetch(`http://localhost:3000/api/tasks/${taskId}`, {
             method: 'DELETE'
