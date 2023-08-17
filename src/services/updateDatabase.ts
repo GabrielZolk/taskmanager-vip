@@ -1,25 +1,28 @@
-import { collection, query, where, getDocs, getFirestore, doc, updateDoc } from "firebase/firestore";
-import { firebaseConfig } from "../config/firebase";
 import { Task } from "../types/Task";
 
 export const updateTaskInDatabase = async ({ id, content }: Task) => {
-    const db = getFirestore(firebaseConfig);
+    const updatedTask = {
+        id,
+        content
+    }
 
     try {
-        const tasksRef = collection(db, "tasks");
-        const q = query(tasksRef, where("id", "==", id));
-        const querySnapshot = await getDocs(q);
+        const response = await fetch('http://localhost:3000/api/tasks', {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(updatedTask)
+        })
 
-        if (!querySnapshot.empty) {
-            const taskDoc = querySnapshot.docs[0];
-            const taskRef = doc(db, "tasks", taskDoc.id);
-            
-            await updateDoc(taskRef, { content: content });
-            console.log("Task updated successfully!");
+        if (response.ok) {
+            const data = await response.json()
+            console.log(data.message)
         } else {
-            console.log("No matching document found for the provided ID.");
+            console.log('Error updating task')
         }
+
     } catch (error) {
-        console.error("Error updating task:", error);
+        console.log('Error fetching:', error)
     }
 };

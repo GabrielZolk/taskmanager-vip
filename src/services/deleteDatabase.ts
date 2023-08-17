@@ -1,24 +1,19 @@
-import { collection, query, where, getDocs, getFirestore, deleteDoc, doc } from "firebase/firestore";
-import { firebaseConfig } from "../config/firebase";
+import { Task } from "../types/Task";
 
-export const deleteTaskFromDatabase = async (id: string) => {
-    const db = getFirestore(firebaseConfig);
-
+export const deleteTaskFromDatabase = async (taskId: Task) => {
     try {
-        const tasksRef = collection(db, "tasks");
-        const q = query(tasksRef, where("id", "==", id));
-        const querySnapshot = await getDocs(q);
-
-        if (!querySnapshot.empty) {
-            const taskDoc = querySnapshot.docs[0];
-            const taskRef = doc(db, "tasks", taskDoc.id);
-            
-            await deleteDoc(taskRef);
-            console.log("Task deleted successfully from the database!");
+        const response = await fetch(`http://localhost:3000/api/tasks/${taskId}`, {
+            method: 'DELETE'
+        });
+        if (response.ok) {
+            const data = await response.json();
+            console.log(data.message);
         } else {
-            console.log("No matching document found for the provided ID.");
+            console.error('Failed to delete task from the database.');
         }
     } catch (error) {
-        console.error("Error deleting task from the database:", error);
+        console.error('An error occurred:', error);
     }
 };
+
+

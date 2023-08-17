@@ -1,10 +1,7 @@
-import { addDoc, collection, getFirestore } from "firebase/firestore";
-import { firebaseConfig } from "../config/firebase";
 import { getAuth } from "firebase/auth";
 import { Task } from "../types/Task";
 
 export const saveTaskToDatabase = async ({ id, date, content, completed }: Task) => {
-    const db = getFirestore(firebaseConfig);
 
     const auth = getAuth();
     const user = auth.currentUser;
@@ -20,11 +17,23 @@ export const saveTaskToDatabase = async ({ id, date, content, completed }: Task)
         };
 
         try {
-            const tasksCollectionRef = collection(db, "tasks");
-            await addDoc(tasksCollectionRef, task);
-            console.log("Save successfully!");
+            const response = await fetch('http://localhost:3000/api/tasks', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(task)
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                console.log(data.message);
+            } else {
+                console.error('Failed to save task.');
+            }
         } catch (error) {
-            console.error("Error saving task:", error);
+            console.error('An error occurred:', error);
         }
     }
-};
+
+}

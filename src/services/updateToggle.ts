@@ -1,22 +1,23 @@
-import { collection, query, where, getDocs, getFirestore, doc, updateDoc } from "firebase/firestore";
-import { firebaseConfig } from "../config/firebase";
-
 export const updateTaskCompletedStatus = async (id: string, newCompletedStatus: boolean) => {
-    const db = getFirestore(firebaseConfig);
+    const updatedStatus = {
+        id, 
+        newCompletedStatus
+    }
 
     try {
-        const tasksRef = collection(db, "tasks");
-        const q = query(tasksRef, where("id", "==", id));
-        const querySnapshot = await getDocs(q);
+        const response = await fetch('http://localhost:3000/api/tasks/status', {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json' 
+            },
+            body: JSON.stringify(updatedStatus)
+        })
 
-        if (!querySnapshot.empty) {
-            const taskDoc = querySnapshot.docs[0];
-            const taskRef = doc(db, "tasks", taskDoc.id);
-
-            await updateDoc(taskRef, { completed: newCompletedStatus });
-            console.log("Task completed status updated successfully!");
+        if(response.ok) {
+            const data = await response.json()
+            console.log(data.message)
         } else {
-            console.log("No matching document found for the provided ID.");
+            console.log("Failed to update task status");
         }
     } catch (error) {
         console.error("Error updating task completed status:", error);
