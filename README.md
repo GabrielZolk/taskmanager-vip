@@ -48,6 +48,8 @@ Como mencionado, as tarefas são salvas no banco de dados, permitindo que os usu
 
 ## EXECUTANDO O BACKEND:
 
+(https://github.com/GabrielZolk/taskmanager-vip-backend)
+
 1. Certifique-se de ter o Node.js instalado em seu sistema.
 
 2. Clone este repositório para o seu computador.
@@ -125,6 +127,8 @@ As mentioned, tasks are saved in the database, allowing users to retain their ta
    npm run dev
 
 ## RUNNING THE BACKEND:
+
+(https://github.com/GabrielZolk/taskmanager-vip-backend)
 
 1. Make sure you have Node.js installed on your system.
 
